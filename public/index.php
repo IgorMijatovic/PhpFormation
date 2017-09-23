@@ -1,17 +1,29 @@
 <?php
 require '../vendor/autoload.php';
 
+$modules = [
+    \App\Blog\BlogModule::class
+];
+
+$builder = new \DI\ContainerBuilder();
+$builder->addDefinitions(dirname(__DIR__) . '/config/config.php');
+foreach ($modules as $module) {
+    if ($module::DEFINITION) {
+        $builder->addDefinitions($module::DEFINITION);
+    }
+}
+$builder->addDefinitions(dirname(__DIR__) . '/config.php');
+
+$container = $builder->build();
+
 //$renderer = new \Framework\Renderer\PHPRenderer(dirname(__DIR__) . '/views');
-$renderer = new \Framework\Renderer\TwigRenderer(dirname(__DIR__) . '/views');
+//$renderer = new \Framework\Renderer\TwigRenderer(dirname(__DIR__) . '/views');
+//$renderer = $container->get(\Framework\Renderer\RendererInterface::class);
 
 /*$loader = new Twig_Loader_Filesystem(dirname(__DIR__) . '/views');
 $twig = new Twig_Environment($loader, []);*/
 
-$app = new Framework\App([
-    \App\Blog\BlogModule::class
-], [
-    'renderer' => $renderer
-]);
+$app = new Framework\App($container, $modules);
 
 $response = $app->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
 
