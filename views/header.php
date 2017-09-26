@@ -16,10 +16,7 @@
     <a class="navbar-brand" href="#">Title</a>
     <ul class="nav navbar-nav">
         <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
+            <a class="nav-link" href="{{ path('blog.index' }}">Blog <span class="sr-only">(current)</span></a>
         </li>
     </ul>
 </nav>
