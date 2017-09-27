@@ -39,12 +39,14 @@ class BlogAction
             return $this->show($request);
         }
 
-            return $this->index();
+            return $this->index($request);
     }
 
-    public function index(): string
+    public function index(Request $request): string
     {
-        $posts = $this->postTable->findPaginated();
+        $params = $request->getQueryParams();
+
+        $posts = $this->postTable->findPaginated(12, $params['p'] ?? 1);
 
         return $this->renderer->render('@blog/index', compact('posts'));
     }
@@ -60,9 +62,9 @@ class BlogAction
         $post = $this->postTable->find($request->getAttribute('id'));
 
         if ($post->slug !== $slug) {
-            $this->redirect('blog.show', [
-                'id'   => $post->id,
-                'slug' => $post->slug
+            return $this->redirect('blog.show', [
+                    'id'   => $post->id,
+                    'slug' => $post->slug
             ]);
         }
 
