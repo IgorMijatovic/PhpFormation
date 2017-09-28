@@ -39,9 +39,9 @@ class PostTable
 
     /**
      * @param int $id
-     * @return Post
+     * @return Post|null
      */
-    public function find(int $id): Post
+    public function find(int $id): ?Post
     {
         $query = $this->pdo
                     ->prepare(
@@ -50,6 +50,6 @@ class PostTable
         $query->execute([$id]);
         $query->setFetchMode(\PDO::FETCH_CLASS, Post::class);
 
-        return $query->fetch();
+        return $query->fetch() ?:null;
     }
 }

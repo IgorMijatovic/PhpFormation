@@ -17,6 +17,6 @@ class TwigRendererFactory
             }
         }
 //        $twig->addExtension($container->get(RouterTwigExtension::class));   sans config
-        return new TwigRenderer($loader, $twig);
+        return new TwigRenderer($twig);
     }
 }
