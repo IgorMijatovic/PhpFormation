@@ -1,5 +1,15 @@
 <?php
 
+use Framework\Renderer\RendererInterface;
+use Framework\Renderer\TwigRendererFactory;
+use Framework\Router\RouterTwigExtension;
+use Framework\Session\PHPSession;
+use Framework\Session\SessionInterface;
+use Framework\Twig\FlashExtension;
+use Framework\Twig\PagerFantaExtension;
+use Framework\Twig\TextExtension;
+use Framework\Twig\TimeExtension;
+
 return [
     'database.host' => 'localhost',
     'database.username' => 'root',
@@ -7,13 +17,15 @@ return [
     'database.name' => 'PhpFormation',
     'views.path' => dirname(__DIR__) . '/views',
     'twig.extensions' => [
-        \DI\get(\Framework\Router\RouterTwigExtension::class),
-        \DI\get(\Framework\Twig\PagerFantaExtension::class),
-        \DI\get(\Framework\Twig\TextExtension::class),
-        \DI\get(\Framework\Twig\TimeExtension::class),
+        \DI\get(RouterTwigExtension::class),
+        \DI\get(PagerFantaExtension::class),
+        \DI\get(TextExtension::class),
+        \DI\get(TimeExtension::class),
+        \DI\get(FlashExtension::class),
     ],
+    SessionInterface::class => \DI\object(PHPSession::class),
 //    \Framework\Renderer\RendererInterface::class => \DI\object(\Framework\Renderer\TwigRenderer::class)->constructor(\DI\get('config.view_path'))
-    \Framework\Renderer\RendererInterface::class => \DI\factory(\Framework\Renderer\TwigRendererFactory::class),
+    RendererInterface::class => \DI\factory(TwigRendererFactory::class),
     \Framework\Router::class => \DI\object(),
     \PDO::class => function (\Psr\Container\ContainerInterface $c) {
         return new PDO(
