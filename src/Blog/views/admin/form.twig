@@ -1,12 +1,4 @@
-<div class="form-group">
-    <label for="name">Titre de l'article</label>
-    <input type="text" class="form-control" name="name" id="name" value="{{ item.name }}">
-</div>
-<div class="form-group">
-    <label for="slug">Titre de l'article</label>
-    <input type="text" class="form-control" name="slug" id="slug" value="{{ item.slug }}">
-</div>
-<div class="form-group">
-    <label for="content">Contenu</label>
-    <textarea name="content" id="content" cols="30" rows="10" class="form-control">{{ item.content }}</textarea>
-</div>
+{{ field('name', item.name, "Titre de l'artile") }}
+{{ field('slug', item.slug, "Lien") }}
+{{ field('content', item.content, "Content", {type: 'textarea'}) }}
+{{ field('created_at', item.created_at, "Date de creation", {class: 'datepicker'}) }}
