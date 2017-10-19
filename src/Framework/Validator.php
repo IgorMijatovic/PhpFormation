@@ -1,6 +1,7 @@
 <?php
 namespace Framework;
 
+use Framework\Database\Table;
 use Framework\Validator\ValidationError;
 
 class Validator
@@ -74,6 +75,20 @@ class Validator
         $pattern = '/^[a-z0-9]+(-[a-z0-9]+)*$/';
         if (!is_null($value) && !preg_match($pattern, $value)) {
             $this->addError($key, 'slug');
+        }
+
+        return $this;
+    }
+
+
+    public function exists(string $key, string $table, \PDO $pdo): self
+    {
+        $value = $this->getValue($key);
+        $statement = $pdo->prepare("SELECT id FROM {$table} WHERE id = ?");
+        $statement->execute([$value]);
+
+        if ($statement->fetchColumn() === false) {
+            $this->addError($key, 'exists', [$table]);
         }
 
         return $this;

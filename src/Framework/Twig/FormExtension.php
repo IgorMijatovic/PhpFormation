@@ -1,14 +1,13 @@
 <?php
 namespace Framework\Twig;
 
-
 class FormExtension extends \Twig_Extension
 {
     public function getFunctions()
     {
         return [
             new \Twig_SimpleFunction('field', [$this, 'field'], [
-                'is_safe'       => ['html'],
+                'is_safe' => ['html'],
                 'needs_context' => true
             ])
         ];
@@ -31,16 +30,18 @@ class FormExtension extends \Twig_Extension
         $value = $this->convertValue($value);
         $attributes = [
             'class' => trim('form-control ' . ($options['class'] ?? '')),
-            'name'  => $key,
-            'id'    => $key
+            'name' => $key,
+            'id' => $key
         ];
 
-        if($error){
+        if ($error) {
             $class .= ' has-danger';
             $attributes['class'] .= ' form-control-danger';
         }
-        if($type === 'textarea'){
+        if ($type === 'textarea') {
             $input = $this->textarea($value, $attributes);
+        } elseif (array_key_exists('options', $options)) {
+            $input = $this->select($value, $options['options'], $attributes);
         } else {
             $input = $this->input($value, $attributes);
         }
@@ -74,10 +75,29 @@ class FormExtension extends \Twig_Extension
         return "<textarea " . $this->getHtmlFromArray($attributes) . ">{$value}</textarea>";
     }
 
-    private function getErrorHtml($context, $key){
-        $error = $context['errors'][$key] ?? false;
-        if($error){
+    /**
+     * Genere un select
+     *
+     * @param null|string $value
+     * @param array $options
+     * @param array $attributes
+     * @return string
+     */
+    private function select(?string $value, array $options, array $attributes)
+    {
+        $htmlOptions = array_reduce(array_keys($options), function (string $html, string $key) use ($options, $value) {
+            $params = ['value' => $key, 'selected' => $key === $value];
 
+            return $html . '<option ' . $this->getHtmlFromArray($params) . '>' . $options[$key] . '</option>';
+        }, "");
+
+        return "<select " . $this->getHtmlFromArray($attributes) . ">$htmlOptions</select>";
+    }
+
+    private function getErrorHtml($context, $key)
+    {
+        $error = $context['errors'][$key] ?? false;
+        if ($error) {
             return "<small class=\"form-text text-muted\">{$error}</small>";
         }
 
@@ -91,18 +111,23 @@ class FormExtension extends \Twig_Extension
      */
     private function getHtmlFromArray(array $attributes)
     {
-        return implode(' ', array_map(function ($key, $value) {
-            return "$key=\"$value\"";
-        }, array_keys($attributes), $attributes));
+        $htmlParts = [];
+        foreach ($attributes as $key => $value) {
+            if ($value === true) {
+                $htmlParts[] = (string) $key;
+            } elseif ($value !== false) {
+                $htmlParts[] = "$key=\"$value\"";
+            }
+        }
+        return implode(' ', $htmlParts);
     }
 
     private function convertValue($value): string
     {
-        if($value instanceof \DateTime){
-
+        if ($value instanceof \DateTime) {
             return $value->format('Y-m-d H:i:s');
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 }
