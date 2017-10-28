@@ -14,7 +14,8 @@ class ValidationError
         'maxLength' => 'Le champs %s doit contenir moins de %d caracteres',
         'betweenLength' => 'Le champs %s doit contenir entrer %d et %d caracteres',
         'datetime' => 'Le champs %s doit etre une date valide (%s)',
-        'exists' => 'Le champs %s n existe pas sur dans la table %s'
+        'exists' => 'Le champs %s n existe pas sur dans la table %s',
+        'unique' => 'Le champs %s doit etre unique'
     ];
     /**
      * @var array

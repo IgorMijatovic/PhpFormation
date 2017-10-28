@@ -9,7 +9,7 @@ class Table
     /**
      * @var \PDO
      */
-    private $pdo;
+    protected $pdo;
 
     /**
      * @var string
@@ -56,39 +56,62 @@ class Table
     }
 
     /**
-     * Recupere un elemet a patir de son id
+     * recupere un element a parti de son id
      * @param int $id
      * @return mixed
+     * @throws NoRecordException
      */
     public function find(int $id)
     {
-        $query = $this->pdo
-            ->prepare(
-                'SELECT * FROM ' . $this->table . ' where id=?'
-            );
-        $query->execute([$id]);
-        if ($this->entity) {
-            $query->setFetchMode(\PDO::FETCH_CLASS, $this->entity);
-        }
-
-        return $query->fetch() ?: null;
+        return $this->fetchOrFail(
+            'SELECT * FROM ' . $this->table . ' where id=?',
+            [$id]
+        );
     }
 
     /**
      * Recupere une liste clef valeurs de nos
      * enregistrements
      */
-    public function findList():array
+    public function findList(): array
     {
         $results = $this->pdo
-                        ->query("SELECT id, name FROM {$this->table}")
-                        ->fetchAll(\PDO::FETCH_NUM);
+            ->query("SELECT id, name FROM {$this->table}")
+            ->fetchAll(\PDO::FETCH_NUM);
         $list = [];
         foreach ($results as $result) {
             $list[$result[0]] = $result[1];
         }
 
         return $list;
+    }
+
+    /**
+     * recupere tous les enregistrement
+     * @return array
+     */
+    public function findAll()
+    {
+        $statement = $this->pdo->query("SELECT * FROM {$this->table}");
+        if ($this->entity) {
+            $statement->setFetchMode(\PDO::FETCH_CLASS, $this->entity);
+        } else {
+            $statement->setFetchMode(\PDO::FETCH_OBJ);
+        }
+
+        return $statement->fetchAll();
+    }
+
+    /**
+     * recupere une ligne par rapport a un champs
+     *
+     * @param string $field
+     * @param string $value
+     * @return mixed
+     */
+    public function findBy(string $field, string $value)
+    {
+        return $this->fetchOrFail("SELECT * FROM {$this->table} WHERE $field = ?", [$value]);
     }
 
     /**
@@ -132,7 +155,7 @@ class Table
      * @param int $id
      * @return bool
      */
-    public function delete(int $id):bool
+    public function delete(int $id): bool
     {
         $statement = $this->pdo->prepare('DELETE FROM ' . $this->table . ' where id = ?');
 
@@ -176,11 +199,35 @@ class Table
      * @param $id
      * @return bool
      */
-    public function exists($id):bool
+    public function exists($id): bool
     {
         $statement = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE id = ?");
         $statement->execute([$id]);
 
         return $statement->fetchColumn() !== false;
+    }
+
+    /**
+     * Permet d executer une requete et de
+     * recuperer le premier resultat
+     *
+     * @param string $query
+     * @param array $params
+     * @return mixed
+     * @throws NoRecordException
+     */
+    protected function fetchOrFail(string $query, array $params = [])
+    {
+        $query = $this->pdo->prepare($query);
+        $query->execute($params);
+        if ($this->entity) {
+            $query->setFetchMode(\PDO::FETCH_CLASS, $this->entity);
+        }
+        $record = $query->fetch();
+        if ($record === false) {
+            throw new NoRecordException();
+        }
+
+        return $record;
     }
 }

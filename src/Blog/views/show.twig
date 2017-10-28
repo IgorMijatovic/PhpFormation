@@ -2,9 +2,12 @@
 {% block title post.name %}
 {% block body %}
 
-<h1>Bienvenu sur l'article {{ post.name }}</h1>
+    <h1>Bienvenu sur l'article {{ post.name }}</h1>
 
     <p class="text-muted">
+        {% if post.category_id %}
+            <a href="{{ path('blog.category', {slug: post.category_slug}) }}" title="{{ post.category_name }}">{{ post.category_name }}</a>
+        {% endif %}
         {{ post.created_at | ago }}
     </p>
 

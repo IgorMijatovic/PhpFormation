@@ -24,8 +24,11 @@ class TextExtension extends \Twig_Extension
      * @param int $maxLength
      * @return string
      */
-    public function excerpt($content, $maxLength = 100): string
+    public function excerpt(?string $content, $maxLength = 100): string
     {
+        if (is_null($content)) {
+            return '';
+        }
         if (mb_strlen($content) > $maxLength) {
             $excerpt = mb_substr($content, 0, $maxLength);
             $lastSpace = mb_strrpos($excerpt, ' ');
