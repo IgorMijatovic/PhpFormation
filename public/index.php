@@ -1,21 +1,20 @@
 <?php
+use App\Admin\AdminModule;
+use App\Blog\BlogModule;
+use Framework\Middleware\DispatcherMiddleware;
+use Framework\Middleware\MethodMiddleware;
+use Framework\Middleware\NotFoundMiddleware;
+use Framework\Middleware\RouterMiddleware;
+use Framework\Middleware\TrailingSlashMiddleware;
+use GuzzleHttp\Psr7\ServerRequest;
+use Middlewares\Whoops;
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $modules = [
-    \App\Admin\AdminModule::class,
-    \App\Blog\BlogModule::class
+    AdminModule::class,
+    BlogModule::class
 ];
-
-$builder = new \DI\ContainerBuilder();
-$builder->addDefinitions(dirname(__DIR__) . '/config/config.php');
-foreach ($modules as $module) {
-    if ($module::DEFINITION) {
-        $builder->addDefinitions($module::DEFINITION);
-    }
-}
-$builder->addDefinitions(dirname(__DIR__) . '/config.php');
-
-$container = $builder->build();
 
 //$renderer = new \Framework\Renderer\PHPRenderer(dirname(__DIR__) . '/views');
 //$renderer = new \Framework\Renderer\TwigRenderer(dirname(__DIR__) . '/views');
@@ -24,9 +23,17 @@ $container = $builder->build();
 /*$loader = new Twig_Loader_Filesystem(dirname(__DIR__) . '/views');
 $twig = new Twig_Environment($loader, []);*/
 
-$app = new Framework\App($container, $modules);
+$app = (new Framework\App(dirname(__DIR__) . '/config/config.php'))
+        ->addModule(AdminModule::class)
+        ->addModule(BlogModule::class)
+        ->pipe(Whoops::class)
+        ->pipe(TrailingSlashMiddleware::class)
+        ->pipe(MethodMiddleware::class)
+        ->pipe(RouterMiddleware::class)
+        ->pipe(DispatcherMiddleware::class)
+        ->pipe(NotFoundMiddleware::class);
 
 if (php_sapi_name() !== 'cli') {
-    $response = $app->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
+    $response = $app->run(ServerRequest::fromGlobals());
     \Http\Response\send($response);
 }
