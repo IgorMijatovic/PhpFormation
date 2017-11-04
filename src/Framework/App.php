@@ -2,6 +2,8 @@
 namespace Framework;
 
 use DI\ContainerBuilder;
+use Doctrine\Common\Cache\ApcCache;
+use Doctrine\Common\Cache\FilesystemCache;
 use Interop\Http\Server\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Container\ContainerInterface;
@@ -86,10 +88,15 @@ class App implements RequestHandlerInterface
     /**
      * @return ContainerInterface
      */
-    private function getContainer(): ContainerInterface
+    public function getContainer(): ContainerInterface
     {
         if ($this->container === null) {
             $builder = new ContainerBuilder();
+            $env = getenv('ENV') ?: 'production';
+            if($env === 'production') {
+                $builder->setDefinitionCache(new FilesystemCache('tmp/di'));
+                $builder->writeProxiesToFile(true, 'tmp/proxies');
+            }
             $builder->addDefinitions($this->definition);
             foreach ($this->modules as $module) {
                 if ($module::DEFINITION) {

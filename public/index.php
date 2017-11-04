@@ -1,6 +1,7 @@
 <?php
 use App\Admin\AdminModule;
 use App\Blog\BlogModule;
+use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
 use Framework\Middleware\MethodMiddleware;
 use Framework\Middleware\NotFoundMiddleware;
@@ -9,26 +10,25 @@ use Framework\Middleware\TrailingSlashMiddleware;
 use GuzzleHttp\Psr7\ServerRequest;
 use Middlewares\Whoops;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+//echo phpinfo();
+//die();
+//dossier courant est le dossier parant
+chdir(dirname(__DIR__));
+
+require 'vendor/autoload.php';
 
 $modules = [
     AdminModule::class,
     BlogModule::class
 ];
 
-//$renderer = new \Framework\Renderer\PHPRenderer(dirname(__DIR__) . '/views');
-//$renderer = new \Framework\Renderer\TwigRenderer(dirname(__DIR__) . '/views');
-//$renderer = $container->get(\Framework\Renderer\RendererInterface::class);
-
-/*$loader = new Twig_Loader_Filesystem(dirname(__DIR__) . '/views');
-$twig = new Twig_Environment($loader, []);*/
-
-$app = (new Framework\App(dirname(__DIR__) . '/config/config.php'))
+$app = (new Framework\App('config/config.php'))
         ->addModule(AdminModule::class)
         ->addModule(BlogModule::class)
         ->pipe(Whoops::class)
         ->pipe(TrailingSlashMiddleware::class)
         ->pipe(MethodMiddleware::class)
+        ->pipe(CsrfMiddleware::class)
         ->pipe(RouterMiddleware::class)
         ->pipe(DispatcherMiddleware::class)
         ->pipe(NotFoundMiddleware::class);
