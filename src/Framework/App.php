@@ -93,7 +93,7 @@ class App implements RequestHandlerInterface
         if ($this->container === null) {
             $builder = new ContainerBuilder();
             $env = getenv('ENV') ?: 'production';
-            if($env === 'production') {
+            if ($env === 'production') {
                 $builder->setDefinitionCache(new FilesystemCache('tmp/di'));
                 $builder->writeProxiesToFile(true, 'tmp/proxies');
             }
