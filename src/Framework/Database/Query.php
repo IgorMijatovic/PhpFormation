@@ -3,6 +3,8 @@ namespace Framework\Database;
 
 /**
  * Class Query qui represene querybuilder
+ * iterator pour pouvoir faire foreache
+ * array acces pour pouvoir acceder aux elements sous forme de tableau
  * @package Framework\Database
  */
 class Query
@@ -20,6 +22,8 @@ class Query
     private $pdo;
 
     private $params;
+
+    private $entity;
 
     public function __construct(?\PDO $pdo = null)
     {
@@ -43,6 +47,14 @@ class Query
         $this->select = $fields;
 
         return $this;
+    }
+
+    public function all(): QueryResult
+    {
+        return new QueryResult(
+            $this->execute()->fetchAll(\PDO::FETCH_ASSOC),
+            $this->entity
+        );
     }
 
     public function where(string ...$condition): self
@@ -108,5 +120,12 @@ class Query
         }
 
         return $this->pdo->query($query);
+    }
+
+    public function into(string $entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
     }
 }
