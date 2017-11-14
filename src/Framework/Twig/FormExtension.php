@@ -40,6 +40,8 @@ class FormExtension extends \Twig_Extension
         }
         if ($type === 'textarea') {
             $input = $this->textarea($value, $attributes);
+        } elseif ($type === 'file') {
+            $input = $this->file($attributes);
         } elseif (array_key_exists('options', $options)) {
             $input = $this->select($value, $options['options'], $attributes);
         } else {
@@ -73,6 +75,11 @@ class FormExtension extends \Twig_Extension
     private function textarea(?string $value, array $attributes): string
     {
         return "<textarea " . $this->getHtmlFromArray($attributes) . ">{$value}</textarea>";
+    }
+
+    private function file($attributes)
+    {
+        return "<input type=\"file\" " . $this->getHtmlFromArray($attributes) . ">";
     }
 
     /**
@@ -114,7 +121,7 @@ class FormExtension extends \Twig_Extension
         $htmlParts = [];
         foreach ($attributes as $key => $value) {
             if ($value === true) {
-                $htmlParts[] = (string) $key;
+                $htmlParts[] = (string)$key;
             } elseif ($value !== false) {
                 $htmlParts[] = "$key=\"$value\"";
             }
