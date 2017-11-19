@@ -7,7 +7,7 @@ use Pagerfanta\Pagerfanta;
 class Table
 {
     /**
-     * @var \PDO
+     * @var null|\PDO
      */
     protected $pdo;
 
@@ -18,9 +18,9 @@ class Table
 
     /**
      * Entity a utiliser
-     * @var string|null
+     * @var string
      */
-    protected $entity;
+    protected $entity = \stdClass::class;
 
     public function __construct(\PDO $pdo)
     {
@@ -28,33 +28,12 @@ class Table
     }
 
     /**
-     * PAgine les elements
-     *
-     * @param int $perPage
-     * @param int $currentPage
-     * @return Pagerfanta
+     * @return Query
      */
-    public function findPaginated(int $perPage, int $currentPage): Pagerfanta
+    public function makeQuery(): Query
     {
-
-        $query = new PaginatedQuery(
-            $this->pdo,
-            $this->paginationQuery(),
-            "SELECT count(id) FROM {$this->table}",
-            $this->entity
-        );
-
-        return (new Pagerfanta($query))
-            ->setMaxPerPage($perPage)
-            ->setCurrentPage($currentPage);
+        return (new Query($this->pdo))->from($this->table, $this->table[0])->into($this->entity);
     }
-
-    protected function paginationQuery()
-    {
-
-        return 'SELECT * FROM ' . $this->table;
-    }
-
     /**
      * recupere un element a parti de son id
      * @param int $id
@@ -63,10 +42,7 @@ class Table
      */
     public function find(int $id)
     {
-        return $this->fetchOrFail(
-            'SELECT * FROM ' . $this->table . ' where id=?',
-            [$id]
-        );
+        return $this->makeQuery()->where("id = $id")->fetchOrFail();
     }
 
     /**
@@ -87,19 +63,11 @@ class Table
     }
 
     /**
-     * recupere tous les enregistrement
-     * @return array
+     * @return Query
      */
-    public function findAll()
+    public function findAll(): Query
     {
-        $statement = $this->pdo->query("SELECT * FROM {$this->table}");
-        if ($this->entity) {
-            $statement->setFetchMode(\PDO::FETCH_CLASS, $this->entity);
-        } else {
-            $statement->setFetchMode(\PDO::FETCH_OBJ);
-        }
-
-        return $statement->fetchAll();
+        return $this->makeQuery();
     }
 
     /**
@@ -111,7 +79,7 @@ class Table
      */
     public function findBy(string $field, string $value)
     {
-        return $this->fetchOrFail("SELECT * FROM {$this->table} WHERE $field = ?", [$value]);
+        return $this->makeQuery()->where("$field = :field")->params(["field" => $value])->fetchOrFail();
     }
 
     /**
@@ -237,24 +205,6 @@ class Table
      */
     public function count(): int
     {
-        return $this->fetchColumn("SELECT COUNT(id) FROM {$this->table}");
-    }
-
-    /**
-     * Recupere la premiere column
-     *
-     * @param string $query
-     * @param array $params
-     * @return string
-     */
-    private function fetchColumn(string $query, array $params = [])
-    {
-        $query = $this->pdo->prepare($query);
-        $query->execute($params);
-        if ($this->entity) {
-            $query->setFetchMode(\PDO::FETCH_CLASS, $this->entity);
-        }
-
-        return $query->fetchColumn();
+        return $this->makeQuery()->count();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Framework\Actions;
 
+use Framework\Database\Hydrator;
 use Framework\Database\Table;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
@@ -84,7 +85,7 @@ class CrudAction
     {
         $params = $request->getQueryParams();
 
-        $items = $this->table->findPaginated(12, $params['p'] ?? 1);
+        $items = $this->table->findAll()->paginate(12, $params['p'] ?? 1);
 
         return $this->renderer->render($this->viewPath . '/index', compact('items'));
     }
@@ -107,9 +108,7 @@ class CrudAction
                 return $this->redirect($this->routePrefix . '.index');
             }
             $errors = $validator->getErrors();
-            $params = $request->getParsedBody();
-            $params['id'] = $item->id;
-            $item = $params;
+            Hydrator::hydrate($request->getParsedBody(), $item);
         }
 
         return $this->renderer->render(
@@ -135,7 +134,7 @@ class CrudAction
                 return $this->redirect($this->routePrefix . '.index');
             }
             $errors = $validator->getErrors();
-            $item = $request->getParsedBody();
+            Hydrator::hydrate($request->getParsedBody(), $item);
         }
 
         return $this->renderer->render(

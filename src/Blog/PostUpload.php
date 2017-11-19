@@ -11,4 +11,3 @@ class PostUpload extends Upload
         'thumb' => [320, 180]
     ];
 }
-

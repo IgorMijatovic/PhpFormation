@@ -61,7 +61,7 @@ class QueryTest extends DatabaseTestCase
         $posts = (new Query($pdo))
             ->from('posts', 'p')
             ->into(Demo::class)
-            ->all();
+            ->fetchAll();
 
         $this->assertEquals('demo', substr($posts[0]->getSlug(), -4));
     }
@@ -74,10 +74,31 @@ class QueryTest extends DatabaseTestCase
         $posts = (new Query($pdo))
             ->from('posts', 'p')
             ->into(Demo::class)
-            ->all();
+            ->fetchAll();
         $post = $posts[0];
         $post2 = $posts[0];
 
         $this->assertSame($post, $post2);
+    }
+
+    public function testJoinQuery()
+    {
+        $query = (new Query())
+            ->from('posts' , 'p')
+            ->select('name')
+            ->join('categories as c', 'c.id=p.category_id')
+            ->join('categories as c2', 'c2.id=p.category_id', 'inner');
+        $this->assertEquals('SELECT name FROM posts as p LEFT JOIN categories as c ON c.id=p.category_id INNER JOIN categories as c2 ON c2.id=p.category_id', (string) $query);
+    }
+
+    public function testLimitOrder()
+    {
+        $query = (new Query())
+            ->from('posts' , 'p')
+            ->select('name')
+            ->orderBy('id DESC')
+            ->orderBy('name ASC')
+            ->limit(10, 5);
+        $this->assertEquals('SELECT name FROM posts as p ORDER BY id DESC, name ASC LIMIT 5, 10', (string) $query);
     }
 }

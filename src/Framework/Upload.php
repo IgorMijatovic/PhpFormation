@@ -8,7 +8,7 @@ class Upload
 {
     protected $path;
 
-    protected $formats;
+    protected $formats = [];
 
     public function __construct(?string $path = null)
     {
@@ -17,24 +17,32 @@ class Upload
         }
     }
 
-    public function upload(UploadedFileInterface $file, ?string $oldFile = null): string
+    /**
+     * @param UploadedFileInterface $file
+     * @param null|string|null $oldFile
+     * @return null|string
+     */
+    public function upload(UploadedFileInterface $file, ?string $oldFile = null): ?string
     {
-        $this->delete($oldFile);
-        $targetPath = $this->addCopySuffix($this->path . DIRECTORY_SEPARATOR . $file->getClientFilename());
-        $dirname = pathinfo($targetPath, PATHINFO_DIRNAME);
-        if (!file_exists($dirname)) {
-            mkdir($dirname, 777, true);
-        }
-        $file->moveTo($targetPath);
-        $this->generateFormat($targetPath);
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $this->delete($oldFile);
+            $targetPath = $this->addCopySuffix($this->path . DIRECTORY_SEPARATOR . $file->getClientFilename());
+            $dirname = pathinfo($targetPath, PATHINFO_DIRNAME);
+            if (!file_exists($dirname)) {
+                mkdir($dirname, 777, true);
+            }
+            $file->moveTo($targetPath);
+            $this->generateFormat($targetPath);
 
-        return pathinfo($targetPath)['basename'];
+            return pathinfo($targetPath)['basename'];
+        }
+
+        return null;
     }
 
     private function addCopySuffix($targetPath): string
     {
         if (file_exists($targetPath)) {
-
             return $this->addCopySuffix($this->getPathWithSuffix($targetPath, 'copy'));
         }
 
@@ -50,7 +58,7 @@ class Upload
             }
             foreach ($this->formats as $format => $_) {
                 $olfFileWithFormat = $this->getPathWithSuffix($oldFile, $format);
-                if(file_exists($olfFileWithFormat)) {
+                if (file_exists($olfFileWithFormat)) {
                     unlink($olfFileWithFormat);
                 }
             }
