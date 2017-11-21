@@ -4,6 +4,8 @@ namespace Framework;
 use DI\ContainerBuilder;
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Cache\FilesystemCache;
+use Framework\Middleware\RoutePrefixedMiddleware;
+use Framework\Middleware\RouterMiddleware;
 use Interop\Http\Server\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Container\ContainerInterface;
@@ -54,12 +56,17 @@ class App implements RequestHandlerInterface
     /**
      * Rajoute un oomportement au niveau de la requete
      *
+     * @param string $routePrefix
      * @param string $middleware
      * @return App
      */
-    public function pipe(string $middleware): self
+    public function pipe(string $routePrefix, ?string $middleware = null): self
     {
-        $this->middlewares[] = $middleware;
+        if ($middleware === null) {
+            $this->middlewares[] = $routePrefix;
+        } else {
+            $this->middlewares[] = new RoutePrefixedMiddleware($this->getContainer(), $routePrefix, $middleware);
+        }
 
         return $this;
     }
@@ -111,11 +118,24 @@ class App implements RequestHandlerInterface
     private function getMiddleware()
     {
         if (array_key_exists($this->index, $this->middlewares)) {
-            $middleware = $this->container->get($this->middlewares[$this->index]);
+            if (is_string($this->middlewares[$this->index])) {
+                $middleware = $this->container->get($this->middlewares[$this->index]);
+            } else {
+                $middleware = $this->middlewares[$this->index];
+            }
+
             $this->index++;
 
             return $middleware;
         }
         return null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getModules(): array
+    {
+        return $this->modules;
     }
 }
