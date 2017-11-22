@@ -4,4 +4,14 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
+    <!--Dossier pour observer le code coverage-->
+    <!--env ENV=dev vendor/bin/phpunit &#45;&#45;coverage-text-->
+    <!--env ENV=dev vendor/bin/phpunit &#45;&#45;coverage-html ./tmp-->
+
+    <filter>
+        <whitelist>
+            <directory>src/Framework</directory>
+        </whitelist>
+    </filter>
 </phpunit>

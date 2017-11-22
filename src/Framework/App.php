@@ -22,13 +22,13 @@ class App implements RequestHandlerInterface
     /**
      * @var string[]
      */
-    private $middlewares;
+    private $middlewares = [];
     /**
      * @var int
      */
     private $index = 0;
     /**
-     * @var string
+     * @var string|null|array
      */
     private $definition;
     /**
@@ -36,7 +36,7 @@ class App implements RequestHandlerInterface
      */
     private $container;
 
-    public function __construct(string $definition)
+    public function __construct($definition= null)
     {
         $this->definition = $definition;
     }
@@ -56,11 +56,11 @@ class App implements RequestHandlerInterface
     /**
      * Rajoute un oomportement au niveau de la requete
      *
-     * @param string $routePrefix
-     * @param string $middleware
+     * @param string|callable|MiddlewareInterface $routePrefix
+     * @param string|callable|MiddlewareInterface|null $middleware
      * @return App
      */
-    public function pipe(string $routePrefix, ?string $middleware = null): self
+    public function pipe(string $routePrefix, $middleware = null): self
     {
         if ($middleware === null) {
             $this->middlewares[] = $routePrefix;
@@ -104,7 +104,9 @@ class App implements RequestHandlerInterface
                 $builder->setDefinitionCache(new FilesystemCache('tmp/di'));
                 $builder->writeProxiesToFile(true, 'tmp/proxies');
             }
-            $builder->addDefinitions($this->definition);
+            if ($this->definition) {
+                $builder->addDefinitions($this->definition);
+            }
             foreach ($this->modules as $module) {
                 if ($module::DEFINITION) {
                     $builder->addDefinitions($module::DEFINITION);

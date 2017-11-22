@@ -45,6 +45,11 @@ class CrudAction
      */
     private $flash;
 
+    /**
+     * @var array
+     */
+    protected $acceptedParams = [];
+
     use RouterAwareAction;
 
     public function __construct(
@@ -147,7 +152,7 @@ class CrudAction
     {
 
         return array_filter($request->getParsedBody(), function ($key) {
-            return in_array($key, []);
+            return in_array($key, $this->acceptedParams);
         }, ARRAY_FILTER_USE_KEY);
     }
 
@@ -173,12 +178,12 @@ class CrudAction
     }
 
     /**
-     * @return array
+     * @return \stdClass
      */
     protected function getNewEntity()
     {
 
-        return [];
+        return new \stdClass();
     }
 
     /**
