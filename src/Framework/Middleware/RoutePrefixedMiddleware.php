@@ -1,7 +1,6 @@
 <?php
 namespace Framework\Middleware;
 
-
 use Interop\Http\Server\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Container\ContainerInterface;
@@ -27,8 +26,7 @@ class RoutePrefixedMiddleware implements MiddlewareInterface
         ContainerInterface $container,
         string $prefix,
         $middleware
-    )
-    {
+    ) {
         $this->container = $container;
         $this->prefix = $prefix;
         $this->middleware = $middleware;
@@ -39,10 +37,8 @@ class RoutePrefixedMiddleware implements MiddlewareInterface
         $path = $request->getUri()->getPath();
         if (strpos($path, $this->prefix) === 0) {
             if (is_string(($this->middleware))) {
-
                 return $this->container->get($this->middleware)->process($request, $handler);
             } else {
-
                 return $this->middleware->process($request, $handler);
             }
         }

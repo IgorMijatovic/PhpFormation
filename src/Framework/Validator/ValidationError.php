@@ -17,7 +17,8 @@ class ValidationError
         'exists' => 'Le champs %s n existe pas sur dans la table %s',
         'unique' => 'Le champs %s doit etre unique',
         'filetype' => 'Le champs %s n est pas au format valide (%s)',
-        'uploaded' => 'Vous devez uploader une image'
+        'uploaded' => 'Vous devez uploader une image',
+        'email' => 'Cette email ne semble valide'
     ];
     /**
      * @var array
@@ -34,7 +35,6 @@ class ValidationError
     public function __toString()
     {
         if (!array_key_exists($this->rule, $this->messages)) {
-
             return "Le champs {$this->key} ne correspond pas a la regle {$this->rule}.";
         } else {
             $params = array_merge([$this->messages[$this->rule], $this->key], $this->attributes);

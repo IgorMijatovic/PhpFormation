@@ -31,7 +31,6 @@ class DatabaseAuth implements Auth
     public function login(string $username, string $password): ?User
     {
         if (empty($username) || empty($password)) {
-
         }
         /**
          * @var User $user
@@ -51,8 +50,7 @@ class DatabaseAuth implements Auth
      */
     public function getUser(): ?User
     {
-        if($this->user) {
-
+        if ($this->user) {
             return $this->user;
         }
         $userId = $this->session->get('auth.user');

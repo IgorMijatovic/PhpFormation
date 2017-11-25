@@ -17,13 +17,11 @@ class AuthModule extends Module
 
     const SEEDS = __DIR__ . '/db/seeds';
 
-    public function __construct
-    (
+    public function __construct(
         ContainerInterface $container,
         Router $router,
         RendererInterface $renderer
-    )
-    {
+    ) {
         $renderer->addPath('auth', __DIR__ . '/views');
         $router->get($container->get('auth.login'), LoginAction::class, 'auth.login');
         $router->post($container->get('auth.login'), LoginAttemptsAction::class);

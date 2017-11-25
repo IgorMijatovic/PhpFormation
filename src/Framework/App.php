@@ -36,7 +36,7 @@ class App implements RequestHandlerInterface
      */
     private $container;
 
-    public function __construct($definition= null)
+    public function __construct($definition = null)
     {
         $this->definition = $definition;
     }

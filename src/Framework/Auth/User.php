@@ -6,7 +6,7 @@ interface User
     /**
      * @return string
      */
-    public function getUsername (): string;
+    public function getUsername(): string;
 
     /**
      * @return string[]

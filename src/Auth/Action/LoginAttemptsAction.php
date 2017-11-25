@@ -33,14 +33,12 @@ class LoginAttemptsAction
 
     use RouterAwareAction;
 
-    public function __construct
-    (
+    public function __construct(
         RendererInterface $renderer,
         DatabaseAuth $auth,
         Router $router,
         SessionInterface $session
-    )
-    {
+    ) {
 
         $this->renderer = $renderer;
         $this->auth = $auth;
@@ -61,6 +59,5 @@ class LoginAttemptsAction
             (new FlashService($this->session))->error('Identifiant ou mot de passe incorrect');
             return $this->redirect('auth.login');
         }
-
     }
 }

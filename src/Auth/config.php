@@ -1,8 +1,8 @@
 <?php
 
-use App\Auth\{
-    AuthTwigExtension, DatabaseAuth, ForbiddenMiddleware
-};
+use App\Auth\AuthTwigExtension;
+use App\Auth\DatabaseAuth;
+use App\Auth\ForbiddenMiddleware;
 use Framework\Auth;
 
 return [

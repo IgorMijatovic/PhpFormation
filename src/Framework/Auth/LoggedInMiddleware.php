@@ -1,7 +1,6 @@
 <?php
 namespace Framework\Auth;
 
-
 use Framework\Auth;
 use Interop\Http\Server\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
@@ -23,7 +22,7 @@ class LoggedInMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $user = $this->auth->getUser();
-        if(is_null($user)) {
+        if (is_null($user)) {
             throw new ForbbidenException();
         }
 

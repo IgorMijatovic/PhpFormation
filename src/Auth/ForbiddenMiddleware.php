@@ -1,7 +1,6 @@
 <?php
 namespace App\Auth;
 
-
 use Framework\Auth\ForbbidenException;
 use Framework\Auth\User;
 use Framework\Response\RedirectResponse;
@@ -45,7 +44,6 @@ class ForbiddenMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-
             return $handler->handle($request);
         } catch (ForbbidenException $exception) {
             return $this->redirectLogin($request);

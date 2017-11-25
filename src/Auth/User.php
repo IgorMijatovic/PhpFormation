@@ -1,7 +1,6 @@
 <?php
 namespace App\Auth;
 
-
 class User implements \Framework\Auth\User
 {
     public $id;

@@ -22,13 +22,11 @@ class LogoutAction
      */
     private $flashService;
 
-    public function __construct
-    (
+    public function __construct(
         RendererInterface $renderer,
         DatabaseAuth $auth,
         FlashService $flashService
-    )
-    {
+    ) {
 
         $this->renderer = $renderer;
         $this->auth = $auth;
