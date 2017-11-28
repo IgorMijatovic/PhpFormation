@@ -18,7 +18,8 @@ class ValidationError
         'unique' => 'Le champs %s doit etre unique',
         'filetype' => 'Le champs %s n est pas au format valide (%s)',
         'uploaded' => 'Vous devez uploader une image',
-        'email' => 'Cette email ne semble valide'
+        'email' => 'Cette email ne semble valide',
+        'confirm' => 'Vous n \'avez pa sconfirme le champs %s',
     ];
     /**
      * @var array
