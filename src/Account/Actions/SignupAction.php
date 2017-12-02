@@ -75,7 +75,7 @@ class SignupAction
             $this->auth->setUser($user);
             $this->flashService->success('Votre compte a bien ete cree');
 
-            return new RedirectResponse($this->router->generateUri('account.profile'));
+            return new RedirectResponse($this->router->generateUri('account'));
         } else {
             $errors = $validator->getErrors();
 

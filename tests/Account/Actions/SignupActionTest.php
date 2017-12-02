@@ -130,7 +130,7 @@ class SignupActionTest extends ActionTestCase
         ]));
 
         $this->renderer->render()->shouldNotBeCalled();
-        $this->assertRedirect($response, 'account.profile');
+        $this->assertRedirect($response, 'account');
     }
 
     public function testPostWithNoPassword()

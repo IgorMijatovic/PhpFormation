@@ -1,24 +1,27 @@
 <?php
 namespace Framework\Middleware;
 
-use Framework\Router\Route;
-use GuzzleHttp\Psr7\Response;
 use Interop\Http\Server\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class DispatcherMiddleware implements MiddlewareInterface
+class CombinedMiddleware implements MiddlewareInterface
 {
     /**
      * @var ContainerInterface
      */
     private $container;
+    /**
+     * @var array
+     */
+    private $middlewares;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, array $middlewares)
     {
         $this->container = $container;
+        $this->middlewares = $middlewares;
     }
 
     /**
@@ -30,16 +33,10 @@ class DispatcherMiddleware implements MiddlewareInterface
      *
      * @return ResponseInterface
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $route = $request->getAttribute(Route::class);
-        if (is_null($route)) {
-            return $handler->handle($request);
-        }
-        $callback = $route->getCallback();
-        if (!is_array($callback)) {
-            $callback = [$callback];
-        }
-        return (new CombinedMiddleware($this->container, $callback))->process($request, $handler);
+        $handler = new CombinedMiddlewareHandler($this->container, $this->middlewares, $handler);
+
+        return $handler->handle($request);
     }
 }

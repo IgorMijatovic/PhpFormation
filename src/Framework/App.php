@@ -4,6 +4,7 @@ namespace Framework;
 use DI\ContainerBuilder;
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Cache\FilesystemCache;
+use Framework\Middleware\CombinedMiddleware;
 use Framework\Middleware\RoutePrefixedMiddleware;
 use Framework\Middleware\RouterMiddleware;
 use Interop\Http\Server\MiddlewareInterface;
@@ -73,14 +74,21 @@ class App implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $middleware = $this->getMiddleware();
-        if (is_null($middleware)) {
-            throw new \Exception('Aucun middleware n\' intercepte cette requete');
-        } elseif (is_callable($middleware)) {
-            return call_user_func_array($middleware, [$request, [$this, 'handle']]);
-        } elseif ($middleware instanceof MiddlewareInterface) {
-            return $middleware->process($request, $this);
+//        $middleware = $this->getMiddleware();
+//        if (is_null($middleware)) {
+//            throw new \Exception('Aucun middleware n\' intercepte cette requete');
+//        } elseif (is_callable($middleware)) {
+//            return call_user_func_array($middleware, [$request, [$this, 'handle']]);
+//        } elseif ($middleware instanceof MiddlewareInterface) {
+//            return $middleware->process($request, $this);
+//        }
+        $this->index++;
+        if ($this->index > 1) {
+            throw new \Exception();
         }
+        $middleware = new CombinedMiddleware($this->getContainer(), $this->middlewares);
+
+        return $middleware->process($request, $this);
     }
 
     public function run(ServerRequestInterface $request): ResponseInterface
@@ -117,21 +125,21 @@ class App implements RequestHandlerInterface
         return $this->container;
     }
 
-    private function getMiddleware()
-    {
-        if (array_key_exists($this->index, $this->middlewares)) {
-            if (is_string($this->middlewares[$this->index])) {
-                $middleware = $this->container->get($this->middlewares[$this->index]);
-            } else {
-                $middleware = $this->middlewares[$this->index];
-            }
-
-            $this->index++;
-
-            return $middleware;
-        }
-        return null;
-    }
+//    private function getMiddleware()
+//    {
+//        if (array_key_exists($this->index, $this->middlewares)) {
+//            if (is_string($this->middlewares[$this->index])) {
+//                $middleware = $this->container->get($this->middlewares[$this->index]);
+//            } else {
+//                $middleware = $this->middlewares[$this->index];
+//            }
+//
+//            $this->index++;
+//
+//            return $middleware;
+//        }
+//        return null;
+//    }
 
     /**
      * @return array

@@ -7,5 +7,9 @@ class UserTable extends Table
 {
     protected $table = "users";
 
-    protected $entity = \App\Auth\User::class;
+    public function __construct(\PDO $pdo, $entity = User::class)
+    {
+        parent::__construct($pdo);
+        $this->entity = $entity;
+    }
 }
