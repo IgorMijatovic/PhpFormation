@@ -49,5 +49,6 @@ return [
     },
     //MAILER
     'mail.to'   => 'igor.mijatovic@outlook.de',
+    'mail.from'   => 'no-reply@outlook.de',
     Swift_Mailer::class => \DI\factory(\Framework\SwiftMailerFactory::class)
 ];

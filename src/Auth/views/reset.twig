@@ -1,0 +1,18 @@
+{% extends'layout.twig' %}
+
+{% block body %}
+
+    {% if flash('error') %}
+        <div class="alert alert-danger">
+            {{ flash('error') }}
+        </div>
+    {% endif %}
+
+    <form action="" method="post">
+        {{ csrf_input() }}
+        {{ field('password', null, 'Mot de passe', {type: password}) }}
+        {{ field('password_confirm', null, 'Mot de passe', {type: password}) }}
+        <p><a href="{{ path('auth.password') }}">Confirmez le mot de passe</a></p>
+        <button class="btn btn-primary">Reinitialiser mon mot de passe</button>
+    </form>
+{% endblock %}
